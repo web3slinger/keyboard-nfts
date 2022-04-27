@@ -7,8 +7,8 @@ module.exports = {
     rinkeby: {
       url: process.env.ALCHEMY_KEY,
       accounts: [process.env.PRIVATE_KEY],
-      gas: 2100000,
-      gasPrice: 8000000000,
+      // gas: 2100000,
+      // gasPrice: 8000000000,
     },
   },
 }
