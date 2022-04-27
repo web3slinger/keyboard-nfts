@@ -3,53 +3,17 @@ import { ethers } from 'ethers'
 import PrimaryButton from '../components/primary-button'
 import Keyboard from '../components/keyboard'
 import TipButton from '../components/tip-button'
-import abi from '../utils/Keyboards.json'
 import addressesEqual from '../utils/addressesEqual'
 import { UserCircleIcon } from '@heroicons/react/solid'
 import getKeyboardsContract from '../utils/getKeyboardsContract'
 import { toast } from 'react-hot-toast'
+import { useMetaMaskAccount } from '../components/meta-mask-account-provider'
 
 export default function Home() {
-  const [ethereum, setEthereum] = useState(undefined)
-  const [connectedAccount, setConnectedAccount] = useState(undefined)
+  const { ethereum, connectedAccount, connectAccount } = useMetaMaskAccount()
   const [keyboards, setKeyboards] = useState([])
   const [keyboardsLoading, setKeyboardsLoading] = useState(false)
   const keyboardsContract = getKeyboardsContract(ethereum)
-  const contractAddress = '0x84A222dCE1D5b8bE8cDd9F6567f6dE8eb00eedfe'
-  const contractABI = abi.abi
-
-  const handleAccounts = (accounts) => {
-    if (accounts.length > 0) {
-      const account = accounts[0]
-      console.log('We have an authorized account: ', account)
-      setConnectedAccount(account)
-    } else {
-      console.log('No authorized accounts yet')
-    }
-  }
-
-  const getConnectedAccount = async () => {
-    if (window.ethereum) {
-      setEthereum(window.ethereum)
-    }
-
-    if (ethereum) {
-      const accounts = await ethereum.request({ method: 'eth_accounts' })
-      handleAccounts(accounts)
-    }
-  }
-
-  useEffect(() => getConnectedAccount(), [])
-
-  const connectAccount = async () => {
-    if (!ethereum) {
-      alert('MetaMask is required to connect an account')
-      return
-    }
-
-    const accounts = await ethereum.request({ method: 'eth_requestAccounts' })
-    handleAccounts(accounts)
-  }
 
   const getKeyboards = async () => {
     if (keyboardsContract && connectedAccount) {
@@ -119,7 +83,7 @@ export default function Home() {
                 {addressesEqual(owner, connectedAccount) ? (
                   <UserCircleIcon className='w-5 h-5 text-indigo-100' />
                 ) : (
-                  <TipButton ethereum={ethereum} index={i} />
+                  <TipButton keyboardsContract={keyboardsContract} index={i} />
                 )}
               </span>
             </div>
