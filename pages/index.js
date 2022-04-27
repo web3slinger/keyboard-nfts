@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import PrimaryButton from '../components/primary-button'
+import Keyboard from '../components/keyboard'
 import abi from '../utils/Keyboards.json'
 
 export default function Home() {
@@ -8,7 +9,7 @@ export default function Home() {
   const [connectedAccount, setConnectedAccount] = useState(undefined)
   const [keyboards, setKeyboards] = useState([])
   const [newKeyboard, setNewKeyboard] = useState('')
-  const contractAddress = '0x1dfe61908352cfc41831cb1574bf49a5a1dabeed'
+  const contractAddress = '0xca246Aee6F67a247C4ddfF268aEFd1D6901044E2'
   const contractABI = abi.abi
 
   const handleAccounts = (accounts) => {
@@ -61,18 +62,6 @@ export default function Home() {
   }
   useEffect(() => getKeyboards(), [connectedAccount])
 
-  if (!ethereum) {
-    return <p>Please install MetaMask to connect to this site</p>
-  }
-
-  if (!connectedAccount) {
-    return (
-      <PrimaryButton onClick={connectAccount}>
-        Connect MetaMask Wallet
-      </PrimaryButton>
-    )
-  }
-
   const submitCreate = async (e) => {
     e.preventDefault()
 
@@ -98,34 +87,41 @@ export default function Home() {
     await getKeyboards()
   }
 
-  return (
-    <div className='flex flex-col gap-y-8'>
-      <form className='flex flex-col gap-y-2'>
-        <div>
-          <label
-            htmlFor='keyboard-description'
-            className='block text-sm font-medium text-gray-700'
-          >
-            Keyboard Description
-          </label>
-        </div>
-        <input
-          name='keyboard-type'
-          className='block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
-          value={newKeyboard}
-          onChange={(e) => {
-            setNewKeyboard(e.target.value)
-          }}
-        />
-        <PrimaryButton type='submit' onClick={submitCreate}>
-          Create Keyboard!
+  if (!ethereum) {
+    return <p>Please install MetaMask to connect to this site</p>
+  }
+
+  if (!connectedAccount) {
+    console.log(connectedAccount)
+    return (
+      <PrimaryButton onClick={connectAccount}>
+        Connect MetaMask Wallet
+      </PrimaryButton>
+    )
+  }
+
+  if (keyboards.length > 0) {
+    return (
+      <div className='flex flex-col gap-4'>
+        <PrimaryButton type='link' href='/create'>
+          Create a Keyboard!
         </PrimaryButton>
-      </form>
-      <div>
-        {keyboards.map((keyboard, i) => (
-          <p key={i}>{keyboard}</p>
-        ))}
+        <div className='grid grid-cols-1 gap-2 p-2 md:grid-cols-2'>
+          {keyboards.map(([kind, isPBT, filter], i) => (
+            <Keyboard key={i} kind={kind} isPBT={isPBT} filter={filter} />
+          ))}
+        </div>
       </div>
+    )
+  }
+
+  // No keyboards yet
+  return (
+    <div className='flex flex-col gap-4'>
+      <PrimaryButton type='link' href='/create'>
+        Create a Keyboard!
+      </PrimaryButton>
+      <p>No keyboards yet!</p>
     </div>
   )
 }

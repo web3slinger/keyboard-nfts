@@ -7,19 +7,14 @@ const main = async () => {
   await keyboardsContract.deployed()
   console.log('Contract deployed to:', keyboardsContract.address)
 
-  let keyboardTxn = await keyboardsContract.create('A really great keyboard!')
-  await keyboardTxn.wait()
+  const keyboardTxn1 = await keyboardsContract.create(0, true, 'sepia')
+  await keyboardTxn1.wait()
 
-  keyboardTxn = await keyboardsContract
-    .connect(somebodyElse)
-    .create('An even better keyboard!')
-  await keyboardTxn.wait()
+  const keyboardTxn2 = await keyboardsContract.create(1, false, 'grayscale')
+  await keyboardTxn2.wait()
 
-  let keyboards = await keyboardsContract.getKeyboards()
+  keyboards = await keyboardsContract.getKeyboards()
   console.log('We got the keyboards!', keyboards)
-
-  keyboards = await keyboardsContract.connect(somebodyElse).getKeyboards()
-  console.log('And as somebody else!', keyboards)
 }
 
 const runMain = async () => {

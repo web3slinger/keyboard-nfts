@@ -4,17 +4,38 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 contract Keyboards {
-    string[] public createdKeyboards;
-
-    constructor() {
-        console.log("gm! i have been constructed.");
+    enum KeyboardKind {
+        SixtyPercent,
+        SeventyFivePercent,
+        EightyPercent,
+        Iso105
     }
 
-    function getKeyboards() public view returns (string[] memory) {
+    struct Keyboard {
+        KeyboardKind kind;
+        // ABS = false, PBT = true
+        bool isPBT;
+        // tailwind filters to layer over
+        string filter;
+    }
+
+    Keyboard[] public createdKeyboards;
+
+    function getKeyboards() public view returns (Keyboard[] memory) {
         return createdKeyboards;
     }
 
-    function create(string calldata _description) external {
-        createdKeyboards.push(_description);
+    function create(
+        KeyboardKind _kind,
+        bool _isPBT,
+        string calldata _filter
+    ) external {
+        Keyboard memory newKeyboard = Keyboard({
+            kind: _kind,
+            isPBT: _isPBT,
+            filter: _filter
+        });
+
+        createdKeyboards.push(newKeyboard);
     }
 }
