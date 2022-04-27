@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import PrimaryButton from '../components/primary-button'
 import Keyboard from '../components/keyboard'
+import TipButton from '../components/tip-button'
 import abi from '../utils/Keyboards.json'
+import addressesEqual from '../utils/addressesEqual'
+import { UserCircleIcon } from '@heroicons/react/solid'
 
 export default function Home() {
   const [ethereum, setEthereum] = useState(undefined)
   const [connectedAccount, setConnectedAccount] = useState(undefined)
   const [keyboards, setKeyboards] = useState([])
-  const [newKeyboard, setNewKeyboard] = useState('')
   const [keyboardsLoading, setKeyboardsLoading] = useState(false)
-  const contractAddress = '0xca246Aee6F67a247C4ddfF268aEFd1D6901044E2'
+  const contractAddress = '0x20F6B0b9758898d8DE756255BC63F1E7256FA87A'
   const contractABI = abi.abi
 
   const handleAccounts = (accounts) => {
@@ -69,31 +71,6 @@ export default function Home() {
   }
   useEffect(() => getKeyboards(), [connectedAccount])
 
-  const submitCreate = async (e) => {
-    e.preventDefault()
-
-    if (!ethereum) {
-      console.error('Ethereum object is required to create a keyboard')
-      return
-    }
-
-    const provider = new ethers.providers.Web3Provider(ethereum)
-    const signer = provider.getSigner()
-    const keyboardsContract = new ethers.Contract(
-      contractAddress,
-      contractABI,
-      signer
-    )
-
-    const createTxn = await keyboardsContract.create(newKeyboard)
-    console.log('Create transaction started...', createTxn.hash)
-
-    await createTxn.wait()
-    console.log('Created keyboard!', createTxn.hash)
-
-    await getKeyboards()
-  }
-
   if (!ethereum) {
     return <p>Please install MetaMask to connect to this site</p>
   }
@@ -114,8 +91,17 @@ export default function Home() {
           Create a Keyboard!
         </PrimaryButton>
         <div className='grid grid-cols-1 gap-2 p-2 md:grid-cols-2'>
-          {keyboards.map(([kind, isPBT, filter], i) => (
-            <Keyboard key={i} kind={kind} isPBT={isPBT} filter={filter} />
+          {keyboards.map(([kind, isPBT, filter, owner], i) => (
+            <div key={i} className='relative'>
+              <Keyboard kind={kind} isPBT={isPBT} filter={filter} />
+              <span className='absolute top-1 right-6'>
+                {addressesEqual(owner, connectedAccount) ? (
+                  <UserCircleIcon className='w-5 h-5 text-indigo-100' />
+                ) : (
+                  <TipButton ethereum={ethereum} index={i} />
+                )}
+              </span>
+            </div>
           ))}
         </div>
       </div>
